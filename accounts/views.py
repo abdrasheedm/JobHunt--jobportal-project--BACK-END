@@ -1,19 +1,21 @@
 from django.shortcuts import render
 from .models import Account, UserType
 from seeker.models import SeekerProfile
-from recruiter.models import CompanyProfile
-from superuser.models import AdminProfile
+from recruiter.models import Company
+from superuser.models import AdminProfile, CompanyCategory
 from rest_framework import generics
 from .serializers import SignUpSerializer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from django.contrib.auth.views import LoginView
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from .token import create_jwt_pair_tokens
 from accounts.otp import send_otp, verify_otp
+import datetime
 # Create your views here.
 
 class SignUpView(generics.GenericAPIView):
@@ -45,7 +47,7 @@ class SignUpView(generics.GenericAPIView):
                 print(user.user_type)
                 SeekerProfile.objects.create(seeker = user)
                 phone_number = data.get('phone_number')
-                send_otp(phone_number)
+                # send_otp(phone_number)
                 print('otp sent')
 
             elif user_type == 'Recruiter':
@@ -53,20 +55,42 @@ class SignUpView(generics.GenericAPIView):
                 user = Account.objects.get(email = email)
                 user_type = UserType.objects.get(user_type_name = 'Recruiter')
                 user.user_type = user_type
-                user.save()
-                print(user.first_name)
                 user.is_staff = True
                 user.save()
+                print(user.first_name)
 
-                CompanyProfile.objects.create(recruiter=user)
+                company_name = data.get('company_name')
+                company_category = data.get('company_category')
+
+                print(company_name, company_category)
+         
+                category = CompanyCategory.objects.get(category_name=company_category)
+                company = Company.objects.create(recruiter=user,company_name = company_name, category = category)
+
+                print('saved')
+
+                # Generate employer id
+                yr = int(datetime.date.today().strftime('%Y'))
+                dt = int(datetime.date.today().strftime('%d'))
+                mt = int(datetime.date.today().strftime('%m'))
+                d = datetime.date(yr,mt,dt)
+                current_date = d.strftime("%Y%m%d")
+                employer_id = current_date + str(company.id)
+                company.employer_id = employer_id
+                company.save()
+
+
+
                 phone_number = data.get('phone_number')
-                send_otp(phone_number)
+                # send_otp(phone_number)
                 print('otp send')
 
 
 
             else:
                 print('neither seeker nor recruiter')
+                user = Account.objects.get(email=email)
+                AdminProfile.objects.create(admin=user)
             
             response = {
                 'message' : 'User Created Successfully',
@@ -92,8 +116,8 @@ class Verify_otpView(APIView):
         phone_number = data.get('mobile')
         print(phone_number, check_otp)
         print("here")
-        check = verify_otp(phone_number, check_otp)
-        # check = True
+        # check = verify_otp(phone_number, check_otp)
+        check = True
 
         if check:
             user = Account.objects.get(phone_number = phone_number)
@@ -132,7 +156,7 @@ class LoginView(APIView):
                 if user.user_type.user_type_name == 'JobSeeker':
                     profile = SeekerProfile.objects.get(seeker=user)
                 elif user.user_type.user_type_name == 'Recruiter':
-                    profile = CompanyProfile.objects.get(recruiter=user)
+                    profile = Company.objects.get(recruiter=user)
                 else:
                     profile = AdminProfile.objects.get(admin = user)
 
@@ -154,7 +178,7 @@ class LoginView(APIView):
                 response = {
                     "message" : "user is not verified"
                 }
-                return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data=response, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
 
         else:
             return Response(data={"message" : "Invalid email or password !"}, status=status.HTTP_400_BAD_REQUEST)

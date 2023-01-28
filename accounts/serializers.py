@@ -14,7 +14,7 @@ User = get_user_model()
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-
+ 
     # user_type = UserTypeSerializer
 
     class Meta:
@@ -41,14 +41,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        # user = User.objects.create_user(
-        #     first_name = validate_data['first_name'],
-        #     last_name = validate_data['last_name'],
-        #     phone_number = validate_data['phone_number'],
-        #     email = validate_data['email'],
-        #     password = validate_data['password']
-        # )
-
         # hashing password
         password = validated_data.pop('password')
 
@@ -56,3 +48,22 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+
+class UserTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserType
+        fields = '__all__'
+
+
+
+class UserViewSerializer(serializers.ModelSerializer):
+    # user_type = UserTypeSerializer()
+    class Meta:
+        model = Account
+        fields = ['first_name', 'last_name', 'phone_number', 'email']
+
+
+
+

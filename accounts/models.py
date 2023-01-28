@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+# from superuser.models import AdminProfile
 
 
 # Create your models here.
@@ -42,6 +43,8 @@ class MyAccountManager(BaseUserManager):
        user.is_superuser = True
        user.is_verified = True
        user.save(using=self._db)
+    #    AdminProfile.objects.create(admin=user)
+       
        return user
 
 
