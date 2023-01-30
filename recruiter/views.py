@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from .models import Company
+from superuser.models import CompanyCategory
+from superuser.serializers import CompanyCategorySerializer
 from accounts.models import Account
 from .serilaizers import CompanyProfileSerializerGet, CompanyProfileSerializer
 from accounts.serializers import UserViewSerializer
@@ -39,12 +41,33 @@ class CompanyUpdateView(APIView):
     
     def put(self, request:Response):
         id = request.query_params['id']
+        print(request.data)
 
         profile = Company.objects.get(id=id)
-        serializer = CompanyProfileSerializer(instance=profile, data=request.data)
+        # recruiter = request.data.pop['recruiter']
+        # print(dict1['recruiter'])
+        category = dict(request.data)['category'][0]
+        category = CompanyCategory.objects.get(category_name=category)
 
-        if serializer.is_valid():
+        serializer = CompanyProfileSerializer(instance=profile, data=request.data)
+        serializer2 = UserViewSerializer(instance=request.user, data=request.data)
+
+        if serializer.is_valid() & serializer2.is_valid():
             serializer.save()
+            serializer2.save()
+
+            print(serializer.data)
+            print(serializer2.data)
+            # category = CompanyCategory.objects.get(category_name = category['category_name'])
+            # print(category)
+            # user = request.user
+            # user.first_name = recruiter['first_name']
+            # user.last_name = recruiter['last_name']
+            # user.email = recruiter['email']
+            # user.phone_number = recruiter['phone_number']
+            # user.save()
+            profile.category = category
+            profile.save()
             return Response({'message': 'done'})
         else:
             print(serializer.errors)

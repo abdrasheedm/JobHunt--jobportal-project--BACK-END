@@ -20,7 +20,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Company
-        fields = ['company_name', 'about', 'ceo_name', 'company_logo', 'head_office_location', 'founder']
+        fields = ['company_name', 'about', 'ceo_name', 'head_office_location', 'founder', 'company_logo']
 
     # def update(self, instance, validated_data):
     #     recruiter_data = validated_data.pop('recruiter')
@@ -37,9 +37,9 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     #     user = company.recruiter
     #     user.first_name = recruiter_data.get('first_name')
     #     user.last_name = recruiter_data.get('last_name')
-    #     user.email = recruiter_data.get('email')
-    #     user.phone_number = recruiter_data.get('phone_number')
+    #     user.email = recruiter_data.get('email', user.email)
+    #     user.phone_number = recruiter_data.get('phone_number', user.phone_number)
     #     user.save()
     #     print(user.first_name)
-# 
-        # return company
+
+    #     return company
