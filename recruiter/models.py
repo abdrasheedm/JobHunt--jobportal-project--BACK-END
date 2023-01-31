@@ -17,8 +17,8 @@ class Company(models.Model):
     head_office_location = models.CharField(max_length=100)
 
 
-    def __str___(self):
-        return self.id
+    def __str__(self):
+        return self.company_name
 
 
 
@@ -43,6 +43,33 @@ class Qualification(models.Model):
 
 class Job(models.Model):
 
-    SALARY_TYPE = [
-        ()
+    JOB_TYPE = [
+        ('part-time', 'Part Time'),
+        ('full-time', 'Full Time'),
+        ('intern', 'Intern'),
+        ('work-from-home', 'Work From Home'),
     ]
+
+    LEVEL = [
+        ('fresher', 'Fresher'),
+        ('intermediate', 'Intermediate'),
+        ('professional', 'Professional')
+    ]
+
+    job_title = models.CharField(max_length=200)
+    company_id = models.ForeignKey(Company, on_delete=models.CASCADE)
+    recruiter_id = models.ForeignKey(Account, on_delete=models.CASCADE)
+    category = models.ForeignKey(CompanyCategory, on_delete=models.CASCADE)
+    department = models.ForeignKey(CompanyDepartment, on_delete=models.CASCADE)
+    level = models.CharField(default='fresher', choices=LEVEL, max_length=200, blank=True)
+    experience = models.IntegerField(blank=True, null=True)
+    salary_range = models.CharField(max_length=20, blank=True, null=True)
+    job_type = models.CharField(default='full-time', choices=JOB_TYPE, max_length=200, blank=True)
+    qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE, blank=True)
+    full_description = models.TextField(blank=True)
+    short_description = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.job_title

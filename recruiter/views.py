@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from .models import Company
-from superuser.models import CompanyCategory
+from .models import Company, Job
+from superuser.models import CompanyCategory, CompanyDepartment
 from superuser.serializers import CompanyCategorySerializer
 from accounts.models import Account
-from .serilaizers import CompanyProfileSerializerGet, CompanyProfileSerializer
+from .serilaizers import CompanyProfileSerializerGet, CompanyProfileSerializer, PostJobSerializer,  JobSerializerGet
 from accounts.serializers import UserViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +14,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
+
 # Create your views here.
+
 
 
 
@@ -44,8 +46,6 @@ class CompanyUpdateView(APIView):
         print(request.data)
 
         profile = Company.objects.get(id=id)
-        # recruiter = request.data.pop['recruiter']
-        # print(dict1['recruiter'])
         category = dict(request.data)['category'][0]
         category = CompanyCategory.objects.get(category_name=category)
 
@@ -56,22 +56,12 @@ class CompanyUpdateView(APIView):
             serializer.save()
             serializer2.save()
 
-            print(serializer.data)
-            print(serializer2.data)
-            # category = CompanyCategory.objects.get(category_name = category['category_name'])
-            # print(category)
-            # user = request.user
-            # user.first_name = recruiter['first_name']
-            # user.last_name = recruiter['last_name']
-            # user.email = recruiter['email']
-            # user.phone_number = recruiter['phone_number']
-            # user.save()
             profile.category = category
             profile.save()
-            return Response({'message': 'done'})
+            return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
         else:
             print(serializer.errors)
-            return Response({'message': 'Not'})
+            return Response({'message': 'Profile updation failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -91,6 +81,64 @@ class UpdateView(APIView):
         else:
             print(serializer.errors)
             return Response({'message': 'Not'})
+
+
+
+class PostJobView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request:Response):
+        print(request.data)
+
+        serializer = PostJobSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class JobView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        id = request.query_params['id']
+        print(request.data)
+
+        try:
+            company = Company.objects.get(id=id)
+            jobs = Job.objects.filter(company_id = company)
+
+            serializer = JobSerializerGet(jobs, many =True)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        except:
+            print("not")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SingleJobView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        id = request.query_params['id']
+        print(id)
+        try:
+            job = Job.objects.get(id=id)
+
+            serializer = JobSerializerGet(job, many=False)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        except:
+            print("erroor")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

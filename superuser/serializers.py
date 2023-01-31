@@ -1,9 +1,16 @@
 from rest_framework import serializers
-from .models import CompanyCategory
+from .models import CompanyCategory, CompanyDepartment
 
 
 
 class CompanyCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyCategory
-        fields = ['category_name']
+        fields = ['id', 'category_name']
+
+
+
+class CategoryDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyDepartment
+        fields = ['id', 'department_name']
