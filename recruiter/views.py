@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import generics
+
 
 
 
@@ -139,6 +141,48 @@ class SingleJobView(APIView):
             print("erroor")
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+class JobUpdateView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request: Response):
+
+        id = request.query_params['id']
+        print(request.data)
+
+
+        # try:
+        job = Job.objects.get(id=id)
+        print(job)
+        serializer = PostJobSerializer(job, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            print(serializer.data)
+            return Response({"message": "Job Updated successfully"}, status=status.HTTP_200_OK)
+
+        else:
+            print(serializer.errors)
+            print('error')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class JobDeleteView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        id = request.query_params['id']
+        
+        try:
+            job = Job.objects.get(id=id)
+            job.delete()
+
+            return Response({"message": "Job deleted successfully"}, status=status.HTTP_200_OK)
+        
+        except:
+            return Response({"message": "Invalid id"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

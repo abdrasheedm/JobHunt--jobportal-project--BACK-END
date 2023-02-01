@@ -184,9 +184,6 @@ class LoginView(APIView):
             return Response(data={"message" : "Invalid email or password !"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class JobSeekerView(ModelViewSet):
-#     queryset = Account.objects.filter()
-
 
 
 class LogoutView(APIView):

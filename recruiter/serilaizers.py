@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Company, Job
+from .models import Company, Job, Qualification
 from superuser.models import CompanyCategory, CompanyDepartment
 from superuser.serializers import CompanyCategorySerializer
 from accounts.models import Account
