@@ -55,6 +55,11 @@ class Job(models.Model):
         ('intermediate', 'Intermediate'),
         ('professional', 'Professional')
     ]
+    STATUS = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('expired', 'Expired')
+    ]
 
     job_title = models.CharField(max_length=200)
     company_id = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -68,6 +73,9 @@ class Job(models.Model):
     qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE, blank=True)
     full_description = models.TextField(blank=True)
     short_description = models.TextField(blank=True)
+    vacancy = models.PositiveIntegerField(blank=True, null=True)
+    last_date = models.DateField(blank=True, null=True)
+    status = models.CharField(default='pending', choices=STATUS, max_length=20, null=True, blank=True)
     location = models.CharField(max_length=200, blank=True)
     created_at = models.DateField(auto_now_add=True)
 
