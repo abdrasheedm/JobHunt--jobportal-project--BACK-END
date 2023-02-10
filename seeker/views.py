@@ -6,8 +6,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics
-from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects
-from .serializers import SeekerProfileSerializer, SeekerProfileUpdateSerializer, EducationSerilizer, ExperienceSerializer, ProjectSerializer, ApplyJobSerializer
+from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, FavouriteJob, AppliedJobs
+from .serializers import (SeekerProfileSerializer, SeekerProfileUpdateSerializer, EducationSerilizer, ExperienceSerializer, ProjectSerializer, ApplyJobSerializer,
+                          FavouriteJobSerializer, FavouriteJobGetSerializer)
 from recruiter.models import Job
 from recruiter.serilaizers import JobSerializerGet
 
@@ -292,7 +293,7 @@ class BrowseJobsView(APIView):
 
 
 class ApplyJobView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
 
@@ -306,3 +307,86 @@ class ApplyJobView(APIView):
         else:
             print(serializer.errors)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class AppliedJobsView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        seeker_id = request.query_params['seeker_id']
+        jobs = AppliedJobs.objects.filter(seeker_id=seeker_id)
+
+        serializers = ApplyJobSerializer(instance=jobs, many=True)
+
+        return Response(data=serializers.data, status=status.HTTP_200_OK)
+        
+
+
+class FavouriteJobView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request:Response):
+        serializer = FavouriteJobSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Added to Favourite Jobs"}, status=status.HTTP_200_OK)
+        else:
+            print(serializer.errors)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+
+class FavouriteJobGetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+        
+        id = request.query_params['id']
+        print(id)
+
+        try:
+            favourites = FavouriteJob.objects.filter(seeker_id=id)
+            serializers = FavouriteJobSerializer(instance=favourites, many=True)
+
+            return Response(data=serializers.data, status=status.HTTP_200_OK)
+
+        except:
+            return Response({"message": "Invalid Id"})
+
+
+class RemoveFavouritedJobView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        job_id = request.query_params['job_id']
+        seeker_id = request.query_params['seeker_id']
+
+        to_remove = FavouriteJob.objects.get(job_id=job_id, seeker_id=seeker_id)
+        to_remove.delete()
+
+        return Response({"message": "Removed Successfully"})
+    
+
+class FavouriteJobListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        seeker_id = request.query_params['seeker_id']
+        try:
+            favourites = FavouriteJob.objects.filter(seeker_id=seeker_id)
+
+            print(seeker_id, favourites)
+
+            serializers = FavouriteJobGetSerializer(instance=favourites, many=True)
+
+            return Response(data=serializers.data, status=status.HTTP_200_OK)
+
+        except:
+            return Response({"message": "No jobs found"})
+        
+
+

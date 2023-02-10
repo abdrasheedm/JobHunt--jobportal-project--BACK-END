@@ -124,3 +124,13 @@ class AppliedJobs(models.Model):
 
     def __str__(self):
         return str(self.job_id)
+    
+
+class FavouriteJob(models.Model):
+
+    job_id = models.ForeignKey(Job, on_delete=models.CASCADE)
+    seeker_id = models.ForeignKey(SeekerProfile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.job_id)
+    

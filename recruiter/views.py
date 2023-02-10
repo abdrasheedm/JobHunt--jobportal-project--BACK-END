@@ -45,7 +45,6 @@ class CompanyUpdateView(APIView):
     
     def put(self, request:Response):
         id = request.query_params['id']
-        print(request.data)
 
         profile = Company.objects.get(id=id)
         category = dict(request.data)['category'][0]
@@ -63,6 +62,7 @@ class CompanyUpdateView(APIView):
             return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
         else:
             print(serializer.errors)
+            print(serializer2.errors)
             return Response({'message': 'Profile updation failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 

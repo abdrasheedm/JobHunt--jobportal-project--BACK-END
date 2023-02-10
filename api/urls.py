@@ -4,7 +4,8 @@ from superuser.views import CompanyCategoryView, CompanyDepartmentView
 from recruiter.views import CompanyView, CompanyUpdateView, UpdateView, PostJobView, JobView, SingleJobView, JobUpdateView, JobDeleteView
 from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducationView, UpdateEducationView, SeekerEducationView, 
                           SeekerExperienceSingleView, PostExperienceView, UpdateExperienceView, SeekerExperienceView,
-                          SeekerProjectView, SeekerProjectSingleView, PostProjectView, UpdateProjectView, BrowseJobsView, ApplyJobView)
+                          SeekerProjectView, SeekerProjectSingleView, PostProjectView, UpdateProjectView, BrowseJobsView, ApplyJobView, 
+                          FavouriteJobView, FavouriteJobGetView, RemoveFavouritedJobView, FavouriteJobListView, AppliedJobsView)
 
 # from .views import MeView
 
@@ -47,8 +48,14 @@ urlpatterns = [
     path('update-seeker-project/', UpdateProjectView.as_view(), name='update-seeker-project'),
 
 
-    path('browse-job/', BrowseJobsView.as_view(), name='browse-job-view'),
-    path('apply-job/', ApplyJobView.as_view(), name='apply-job-view'),
+    path('browse-job/', BrowseJobsView.as_view(), name='browse-job'),
+    path('apply-job/', ApplyJobView.as_view(), name='apply-job'),
+    path('applied-jobs/', AppliedJobsView.as_view(), name='applied-jobs-view'),
+    path('favourite-job/', FavouriteJobView.as_view(), name='add-to-favourite'),
+    path('seeker-favourited-job/', FavouriteJobGetView.as_view(), name='favourite-job-get'),
+    path('seeker-remove-favourited-job/', RemoveFavouritedJobView.as_view(), name='favourite-job-remove'),
+    path('favourite-job-list/', FavouriteJobListView.as_view(), name='list-favourite-jobs'),
+
 
 
 
