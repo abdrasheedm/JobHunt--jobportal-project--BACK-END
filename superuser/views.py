@@ -19,7 +19,6 @@ class CompanyCategoryView(ModelViewSet):
 
 class CompanyDepartmentView(APIView):
     
-    permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
 

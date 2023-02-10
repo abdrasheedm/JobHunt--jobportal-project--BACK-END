@@ -10,7 +10,7 @@ class Company(models.Model):
     employer_id = models.CharField(max_length=50, unique=True, blank=True, null=True, default=1)
     category = models.ForeignKey(CompanyCategory, on_delete=models.PROTECT)
     company_logo = models.ImageField(upload_to=f'media/{company_name}/logo', blank=True)
-    started_date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    started_date = models.DateField(auto_now_add=True, blank=True, null=True)
     about = models.TextField(max_length=3000, blank=True)
     founder = models.CharField(max_length=200, blank=True)
     ceo_name = models.CharField(max_length=200, blank=True)
@@ -55,11 +55,7 @@ class Job(models.Model):
         ('intermediate', 'Intermediate'),
         ('professional', 'Professional')
     ]
-    STATUS = [
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('expired', 'Expired')
-    ]
+
 
     job_title = models.CharField(max_length=200)
     company_id = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -75,7 +71,7 @@ class Job(models.Model):
     short_description = models.TextField(blank=True)
     vacancy = models.PositiveIntegerField(blank=True, null=True)
     last_date = models.DateField(blank=True, null=True)
-    status = models.CharField(default='pending', choices=STATUS, max_length=20, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     location = models.CharField(max_length=200, blank=True)
     created_at = models.DateField(auto_now_add=True)
 
