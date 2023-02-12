@@ -48,6 +48,15 @@ class ApplyJobSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AppliedJobsGetSerializer(serializers.ModelSerializer):
+    job_id = JobSerializerGet(read_only=True, many=False)
+    class Meta:
+        
+        model = AppliedJobs
+        fields = ['job_id', 'applied_on', 'is_shortlisted', 'is_decline' ]
+
+
+
 class FavouriteJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavouriteJob

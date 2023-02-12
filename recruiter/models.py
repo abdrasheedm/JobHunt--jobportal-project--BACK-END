@@ -21,19 +21,6 @@ class Company(models.Model):
         return self.company_name
 
 
-
-# class RecruiterProfile(models.Model):
-#     recruiter = models.ForeignKey(Account, on_delete=models.CASCADE)
-#     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-#     profile_pic = models.ImageField('/images', blank=True)
-#     about = models.TextField(blank=True)
-#     category = models.ForeignKey(CompanyCategory, on_delete=models.CASCADE, blank=True, null=True)
-
-
-#     def __str__(self):
-#         return str(self.id)
-
-
 class Qualification(models.Model):
     title = models.CharField(max_length=200)
 
@@ -47,11 +34,11 @@ class Job(models.Model):
         ('part-time', 'Part Time'),
         ('full-time', 'Full Time'),
         ('intern', 'Intern'),
-        ('work-from-home', 'Work From Home'),
     ]
 
     LEVEL = [
         ('fresher', 'Fresher'),
+        ('internship', 'Internship'),
         ('intermediate', 'Intermediate'),
         ('professional', 'Professional')
     ]

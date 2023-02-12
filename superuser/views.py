@@ -22,10 +22,9 @@ class CompanyDepartmentView(APIView):
 
     def get(self, request:Response):
 
-        id = request.query_params['id']
-        print(request.data)
-
         try:
+            id = request.query_params['id']
+            print(request.data)
             category = CompanyCategory.objects.get(id = id)
             departments = CompanyDepartment.objects.filter(category=category)
 
@@ -33,5 +32,6 @@ class CompanyDepartmentView(APIView):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         
         except:
-            print("data not found")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            departments = CompanyDepartment.objects.all()
+            serializer = CategoryDepartmentSerializer(departments, many=True)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)

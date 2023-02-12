@@ -16,6 +16,9 @@ from django.contrib.auth import authenticate
 from .token import create_jwt_pair_tokens
 from accounts.otp import send_otp, verify_otp
 import datetime
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from rest_framework_simplejwt.tokens import RefreshToken
+
 # Create your views here.
 
 class SignUpView(generics.GenericAPIView):
@@ -188,9 +191,16 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
 
-    def get(self, request, format=None):
-        # delete the token
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"message": "Logged out successfully"},status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

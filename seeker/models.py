@@ -121,6 +121,7 @@ class AppliedJobs(models.Model):
     is_shortlisted = models.BooleanField(default=False)
     is_decline = models.BooleanField(default=False)
     is_applied = models.BooleanField(default=True)
+    applied_on = models.DateField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return str(self.job_id)

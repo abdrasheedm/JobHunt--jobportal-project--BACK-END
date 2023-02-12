@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from .models import Company, Job
+from .models import Company, Job, Qualification
 from superuser.models import CompanyCategory, CompanyDepartment
 from superuser.serializers import CompanyCategorySerializer
 from accounts.models import Account
-from .serilaizers import CompanyProfileSerializerGet, CompanyProfileSerializer, PostJobSerializer,  JobSerializerGet
+from .serilaizers import CompanyProfileSerializerGet, CompanyProfileSerializer, PostJobSerializer,  JobSerializerGet, QualificationSerializer
 from accounts.serializers import UserViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -183,6 +183,16 @@ class JobDeleteView(APIView):
         
         except:
             return Response({"message": "Invalid id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class QualificationsView(APIView):
+    
+    def get(self, request:Response):
+        qualifications = Qualification.objects.all()
+        serializers = QualificationSerializer(qualifications, many=True)
+
+        return Response(data=serializers.data, status=status.HTTP_200_OK)
+
 
 
 

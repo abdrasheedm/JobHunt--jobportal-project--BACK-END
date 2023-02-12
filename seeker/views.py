@@ -8,7 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics
 from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, FavouriteJob, AppliedJobs
 from .serializers import (SeekerProfileSerializer, SeekerProfileUpdateSerializer, EducationSerilizer, ExperienceSerializer, ProjectSerializer, ApplyJobSerializer,
-                          FavouriteJobSerializer, FavouriteJobGetSerializer)
+                          FavouriteJobSerializer, FavouriteJobGetSerializer, AppliedJobsGetSerializer)
 from recruiter.models import Job
 from recruiter.serilaizers import JobSerializerGet
 
@@ -68,6 +68,17 @@ class SeekerProfileUpdateView(APIView):
         else:
             print(serializer.errors)
             return Response({'message':'Failed'})
+        
+
+
+class AllSeekersGetView(APIView):
+    
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+        seekers = SeekerProfile.objects.all()
+        serializers = SeekerProfileSerializer(instance=seekers, many=True)
+        return Response(data=serializers.data, status=status.HTTP_200_OK)
         
 
 class PostEducationView(APIView):
@@ -199,6 +210,22 @@ class UpdateExperienceView(APIView):
 
         except:
             return Response({"message": "Id does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class DeleteExperienceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        id = request.query_params['exp_id']
+        
+        try:
+            instance = Experience.objects.get(id=id)
+            instance.delete()
+
+            return Response({"message": "Experience deleted Successfully"}, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Invalid experience data"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -277,6 +304,24 @@ class UpdateProjectView(APIView):
         
 
 
+class DeleteProjectView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        id = request.query_params['proj_id']
+        
+        try:
+            instance = Projects.objects.get(id=id)
+            instance.delete()
+
+            return Response({"message": "Project deleted Successfully"}, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Invalid experience data"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+
+
 class BrowseJobsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -287,9 +332,8 @@ class BrowseJobsView(APIView):
      
         return Response(data=serializer.data, status=status.HTTP_200_OK)
         
-        # else:
-        #     print(serializer.errors)
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class ApplyJobView(APIView):
@@ -311,31 +355,65 @@ class ApplyJobView(APIView):
 
 
 class AppliedJobsView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
 
         seeker_id = request.query_params['seeker_id']
         jobs = AppliedJobs.objects.filter(seeker_id=seeker_id)
 
-        serializers = ApplyJobSerializer(instance=jobs, many=True)
+        print(seeker_id)
+
+        serializers = AppliedJobsGetSerializer(instance=jobs, many=True)
 
         return Response(data=serializers.data, status=status.HTTP_200_OK)
+    
+
+
+class AppliedJobRemoveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request:Response):
+
+        job_id = request.query_params['job_id']
+        print(job_id)
+
+        try:
+            job = AppliedJobs.objects.get(job_id=job_id)
+            job.delete()
+            return Response({"message": "Remoed From Applied Jobs"}, status=status.HTTP_200_OK)
+
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
         
 
 
 class FavouriteJobView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]    
 
     def post(self, request:Response):
-        serializer = FavouriteJobSerializer(data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Added to Favourite Jobs"}, status=status.HTTP_200_OK)
-        else:
-            print(serializer.errors)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            job_id = request.query_params['job_id']
+            seeker_id = request.query_params['seeker_id']
+
+            to_remove = FavouriteJob.objects.get(job_id=job_id, seeker_id=seeker_id)
+            to_remove.delete()
+
+            return Response({"message": "Removed From Favourites"})
+        
+        except:
+            serializer = FavouriteJobSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Added to Favourite Jobs"}, status=status.HTTP_200_OK)
+            else:
+                print(serializer.errors)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
 class FavouriteJobGetView(APIView):
