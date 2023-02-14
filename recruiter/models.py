@@ -64,3 +64,40 @@ class Job(models.Model):
 
     def __str__(self):
         return self.job_title
+    
+
+
+class UserMembership(models.Model):
+    DURATION = (
+        (0, '15 days'),
+        (30 , 'One Month'),
+        (90 , 'Three Month'),
+        (180 , 'Six Month'),
+    )
+    title = models.CharField(max_length=200 , default='Trial')
+    duration = models.IntegerField(default=15 , choices=DURATION)
+    price = models.CharField(max_length=200, default=0.00)
+
+    def __str__(self):
+        return self.title
+    
+
+class MembershipPurchase(models.Model):
+    user = models.ForeignKey(Company, on_delete=models.CASCADE)
+    membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user
+    
+
+class SubscriptionPlan(models.Model):
+    user = models.ForeignKey(MembershipPurchase, on_delete=models.CASCADE)
+    activation_date = models.DateField(auto_now_add=True)
+    expirty_date = models.DateField()
+    payment_id = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
+    paid = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.user

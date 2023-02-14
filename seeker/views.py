@@ -73,7 +73,7 @@ class SeekerProfileUpdateView(APIView):
 
 class AllSeekersGetView(APIView):
     
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
         seekers = SeekerProfile.objects.all()
@@ -323,7 +323,7 @@ class DeleteProjectView(APIView):
 
 
 class BrowseJobsView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
         jobs = Job.objects.filter(is_active=True)
