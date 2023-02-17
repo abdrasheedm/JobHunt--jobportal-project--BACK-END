@@ -200,7 +200,7 @@ class QualificationsView(APIView):
     
 
 class MembershipPurchaseView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self,request:Response):
         user_id = request.query_params['user_id']
@@ -222,22 +222,33 @@ class MembershipPurchaseView(APIView):
         duration = data['duration']
         membership_id = UserMembership.objects.get(duration=duration).id
         data['membership'] = membership_id
-        serializer = MembershipPurchaseSerializer(data=data)
-        if serializer.is_valid():
-            user = serializer.save()
-            serializer = SubsciptionPlanSerializer(data={'user':user.id})
+        user_id = request.data['user']
+        if MembershipPurchase.objects.filter(user=user_id).exists():
+            obj = MembershipPurchase.objects.get(user=user_id)
+            obj.membership = UserMembership.objects.get(id=membership_id)
+            obj.save()
+            serializer = SubsciptionPlanSerializer(data={'user':obj.id})
             if serializer.is_valid():
                 serializer.save()
+                return Response({"message": "Plan Updated successfully"}, status=status.HTTP_200_OK)
             else:
                 print(serializer.errors)
                 return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-            
-
-            return Response({"message": "Plan subscribed successfully"}, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
+            serializer = MembershipPurchaseSerializer(data=data)
+            if serializer.is_valid():
+                user = serializer.save()
+                serializer = SubsciptionPlanSerializer(data={'user':user.id})
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    print(serializer.errors)
+                    return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
+
+                return Response({"message": "Plan subscribed successfully"}, status=status.HTTP_200_OK)
+            else:
+                print(serializer.errors)
+                return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class PlanDetailsView(APIView):
@@ -248,14 +259,15 @@ class PlanDetailsView(APIView):
         # try:
             user = Company.objects.get(id=user_id)
             membership = MembershipPurchase.objects.get(user=user)
+
             instance = SubscriptionPlan.objects.filter(user=membership).order_by('-id')
             now = timezone.now().date()
 
-            print(now)
+            
             if now > instance[0].expiry_date and instance[0].is_active:
-                print(instance[0].expiry_date)
-                instance[0].is_active = False
-                instance[0].save()
+                obj = SubscriptionPlan.objects.get(id=instance[0].id)
+                obj.is_active = False
+                obj.save()
                 print('done---------------------------------------------------------------------------------------')
             print(instance)
 
