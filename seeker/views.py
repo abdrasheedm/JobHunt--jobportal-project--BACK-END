@@ -355,14 +355,18 @@ class ApplyJobView(APIView):
 
 
 class AppliedJobsView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
+        print(request.query_params)
 
-        seeker_id = request.query_params['seeker_id']
-        jobs = AppliedJobs.objects.filter(seeker_id=seeker_id)
+        if 'seeker_id' in dict(request.query_params):
+            seeker_id = request.query_params['seeker_id']
+            jobs = AppliedJobs.objects.filter(seeker_id=seeker_id)
+        else:
+            recruiter_id = request.query_params['recruiter_id']
+            jobs = AppliedJobs.objects.filter(recruiter_id=recruiter_id)
 
-        print(seeker_id)
 
         serializers = AppliedJobsGetSerializer(instance=jobs, many=True)
 

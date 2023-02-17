@@ -2,7 +2,7 @@ from rest_framework import serializers
 from accounts.serializers import UserViewSerializer
 from superuser.serializers import CompanyCategorySerializer, CategoryDepartmentSerializer
 from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, AppliedJobs, FavouriteJob
-from recruiter.serilaizers import JobSerializerGet
+from recruiter.serilaizers import JobSerializerGet, ShortlistedCandidates
 
 
 
@@ -45,15 +45,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 class ApplyJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppliedJobs
-        fields = '__all__'
+        fields = '__all__' 
 
 
 class AppliedJobsGetSerializer(serializers.ModelSerializer):
     job_id = JobSerializerGet(read_only=True, many=False)
+    seeker_id = SeekerProfileSerializer(read_only=True, many=False)
     class Meta:
         
         model = AppliedJobs
-        fields = ['job_id', 'applied_on', 'is_shortlisted', 'is_decline' ]
+        fields = '__all__'
 
 
 
@@ -68,4 +69,14 @@ class FavouriteJobGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavouriteJob
         fields = ['id', 'job_id']
+
+
+
+class ShortlistCandidatesGetSerializer(serializers.ModelSerializer):
+    applied_job = AppliedJobsGetSerializer(read_only=True, many=False)
+    class Meta:
+        model = ShortlistedCandidates
+        fields = '__all__'
+
+
         

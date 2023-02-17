@@ -20,7 +20,7 @@ class SeekerProfile(models.Model):
     seeker = models.ForeignKey(Account, on_delete=models.CASCADE)
     profile_photo = models.ImageField(upload_to='profle picture', blank=True)
     about = models.TextField(blank=True)
-    date_of_birth = models.DateField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True) 
     category = models.ForeignKey(CompanyCategory, on_delete=models.CASCADE, blank=True, null=True)
     department = models.ForeignKey(CompanyDepartment, on_delete=models.CASCADE, blank=True, null=True)
     level = models.CharField(default='fresher', choices=SEEKER_STATUS, max_length=20)

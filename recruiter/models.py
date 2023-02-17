@@ -1,6 +1,12 @@
 from django.db import models
 from accounts.models import Account
 from superuser.models import CompanyCategory, CompanyDepartment
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+import datetime
+import time
+
+
 
 # Create your models here.
 
@@ -67,8 +73,25 @@ class Job(models.Model):
     
 
 
+class ShortlistedCandidates(models.Model):
+    STATUS = [
+        ('Shortlised' , 'Shortlised'),
+        ('Tech-Interview' ,'Tech-Interview'),
+        ('HR-Round','HR-Round')
+    ]
+    recruiter_id = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    applied_job = models.ForeignKey('seeker.AppliedJobs', on_delete=models.CASCADE, blank=True, null=True)
+    status = models.CharField(default = 'Shortlised' ,choices=STATUS , max_length=200 ,blank=True ) 
+
+    def __str__(self):
+        return str(self.applied_job)
+
+
+    
+
+
 class UserMembership(models.Model):
-    DURATION = (
+    DURATION = ( 
         (0, '15 days'),
         (30 , 'One Month'),
         (90 , 'Three Month'),
@@ -83,21 +106,32 @@ class UserMembership(models.Model):
     
 
 class MembershipPurchase(models.Model):
-    user = models.ForeignKey(Company, on_delete=models.CASCADE)
+    user = models.OneToOneField(Company, on_delete=models.CASCADE)
     membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.user
+        return str(self.user)
     
 
 class SubscriptionPlan(models.Model):
     user = models.ForeignKey(MembershipPurchase, on_delete=models.CASCADE)
     activation_date = models.DateField(auto_now_add=True)
-    expirty_date = models.DateField()
-    payment_id = models.CharField(max_length=200)
+    expiry_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     paid = models.BooleanField(default=True)
 
 
     def __str__(self):
-        return self.user
+        return str(self.user)
+
+@receiver(post_save, sender=SubscriptionPlan)
+def expirty_date_handler(sender, instance, **kwargs):
+    print('hai')
+    if instance.activation_date and not instance.expiry_date:
+        duration = instance.user.membership.duration
+        activation_date = instance.activation_date
+        expiry_date = activation_date + datetime.timedelta(days=duration)
+        instance.expiry_date = expiry_date
+        instance.save()
+        print(expiry_date)

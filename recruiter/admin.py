@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Company, Job, Qualification, MembershipPurchase, SubscriptionPlan, UserMembership
+from .models import  Company, Job, Qualification, MembershipPurchase, SubscriptionPlan, UserMembership, ShortlistedCandidates
 
 # Register your models here.
 
@@ -16,4 +16,5 @@ admin.site.register(Qualification, QulificationAdmin)
 admin.site.register(MembershipPurchase)
 admin.site.register(SubscriptionPlan)
 admin.site.register(UserMembership)
+admin.site.register(ShortlistedCandidates)
 

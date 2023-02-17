@@ -1,7 +1,8 @@
 from django.urls import path,include
 from rest_framework import routers
 from superuser.views import CompanyCategoryView, CompanyDepartmentView
-from recruiter.views import CompanyView, CompanyUpdateView, UpdateView, PostJobView, JobView, SingleJobView, JobUpdateView, JobDeleteView, QualificationsView
+from recruiter.views import (CompanyView, CompanyUpdateView, UpdateView, PostJobView, JobView, SingleJobView, JobUpdateView, JobDeleteView, QualificationsView,
+                             MembershipPurchaseView,PlanDetailsView, ApplicationTrackingView, ApplicantShortlisiView, ShortlistedApplicantView, RemoveShortlistedCandidateView)
 from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducationView, UpdateEducationView, SeekerEducationView, 
                           SeekerExperienceSingleView, PostExperienceView, UpdateExperienceView, SeekerExperienceView,
                           SeekerProjectView, SeekerProjectSingleView, PostProjectView, UpdateProjectView, BrowseJobsView, ApplyJobView, 
@@ -29,6 +30,13 @@ urlpatterns = [
     path('all-seekers-profile/', AllSeekersGetView.as_view(), name='view-all-seeker-profile'),
 
     path('job-qualifications-view/', QualificationsView.as_view(), name='view-job-qualifications'),
+    path('membership-purchase-view/', MembershipPurchaseView.as_view(), name='membership-purchase-view'),
+    path('plan-details-view/', PlanDetailsView.as_view(), name='plan-details-view'),
+
+    path('applicaion-tracking/', ApplicationTrackingView.as_view(), name='application-tracking-view'),
+    path('applicant-shortlist/', ApplicantShortlisiView.as_view(), name='applicant-shortlist-view'),
+    path('shortlisted-applicant/', ShortlistedApplicantView.as_view(), name='shortlisted-applicant-view'),
+    path('delete-shortlisted-applicant/', RemoveShortlistedCandidateView.as_view(), name='delete-applicant-view'),
 
 
 
