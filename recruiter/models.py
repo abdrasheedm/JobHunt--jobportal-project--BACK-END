@@ -100,6 +100,7 @@ class UserMembership(models.Model):
     title = models.CharField(max_length=200 , default='Trial')
     duration = models.IntegerField(default=15 , choices=DURATION)
     price = models.CharField(max_length=200, default=0.00)
+    job_count = models.PositiveBigIntegerField(default=5)
 
     def __str__(self):
         return self.title
@@ -108,10 +109,21 @@ class UserMembership(models.Model):
 class MembershipPurchase(models.Model):
     user = models.OneToOneField(Company, on_delete=models.CASCADE)
     membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
+    postable_job_count = models.PositiveBigIntegerField(default=5)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.user)
+    
+    
+@receiver(pre_save, sender=MembershipPurchase)
+def job_count_handler(sender, instance, **kwargs):
+    if instance.postable_job_count is None:
+        instance.postable_job_count = instance.membership.job_count
+    if instance.postable_job_count <= 0:
+        instance.is_active = False
+        # instance.save()
+
     
 
 class SubscriptionPlan(models.Model):
@@ -124,6 +136,11 @@ class SubscriptionPlan(models.Model):
 
     def __str__(self):
         return str(self.user)
+    
+
+
+
+
 
 @receiver(post_save, sender=SubscriptionPlan)
 def expirty_date_handler(sender, instance, **kwargs):
@@ -134,4 +151,3 @@ def expirty_date_handler(sender, instance, **kwargs):
         expiry_date = activation_date + datetime.timedelta(days=duration)
         instance.expiry_date = expiry_date
         instance.save()
-        print(expiry_date)

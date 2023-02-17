@@ -97,11 +97,17 @@ class PostJobView(APIView):
 
     def post(self, request:Response):
         print(request.data)
+        user_id = request.data['company_id']
+        if MembershipPurchase.objects.get(user=user_id).postable_job_count <= 0:
+            return Response({"message": "You reached Your limit !\nPlease Subscibe"}, status=status.HTTP_200_OK)
 
         serializer = PostJobSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            obj = MembershipPurchase.objects.get(user=user_id)
+            obj.postable_job_count -= 1
+            obj.save()
+            return Response({"message": "Job posted Successfully"}, status=status.HTTP_200_OK)
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -223,7 +229,7 @@ class MembershipPurchaseView(APIView):
         membership_id = UserMembership.objects.get(duration=duration).id
         data['membership'] = membership_id
         user_id = request.data['user']
-        if MembershipPurchase.objects.filter(user=user_id).exists():
+        if MembershipPurchase.objects.filter(user=user_id, is_active=False).exists():
             obj = MembershipPurchase.objects.get(user=user_id)
             obj.membership = UserMembership.objects.get(id=membership_id)
             obj.save()
