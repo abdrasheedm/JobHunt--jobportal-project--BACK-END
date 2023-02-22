@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-eiyg-s78!ig49+hcjcjbi3@zharipdtzh2!%l^2k2q+^cte=%!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.4.0.85']
 
 
 # Application definition
@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'api',
     'recruiter',
     'seeker',
-    'superuser'
+    'superuser',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -151,6 +152,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+"http://10.4.0.85:5173"
+]
+
 APPEND_SLASH=False
 
 REST_FRAMEWORK = {

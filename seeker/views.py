@@ -380,10 +380,11 @@ class AppliedJobRemoveView(APIView):
     def get(self, request:Response):
 
         job_id = request.query_params['job_id']
+        seeker_id = request.query_params['user_id']
         print(job_id)
 
         try:
-            job = AppliedJobs.objects.get(job_id=job_id)
+            job = AppliedJobs.objects.get(job_id=job_id, seeker_id=seeker_id)
             job.delete()
             return Response({"message": "Remoed From Applied Jobs"}, status=status.HTTP_200_OK)
 

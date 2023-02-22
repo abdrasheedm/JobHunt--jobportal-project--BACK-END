@@ -109,8 +109,10 @@ class UserMembership(models.Model):
 class MembershipPurchase(models.Model):
     user = models.OneToOneField(Company, on_delete=models.CASCADE)
     membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
-    postable_job_count = models.PositiveBigIntegerField(default=5)
+    postable_job_count = models.PositiveBigIntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    is_active_job = models.BooleanField(default=True)
+    
 
     def __str__(self):
         return str(self.user)
@@ -118,10 +120,9 @@ class MembershipPurchase(models.Model):
     
 @receiver(pre_save, sender=MembershipPurchase)
 def job_count_handler(sender, instance, **kwargs):
-    if instance.postable_job_count is None:
+    if instance.is_active_job==True and instance.postable_job_count==0:
         instance.postable_job_count = instance.membership.job_count
-    if instance.postable_job_count <= 0:
-        instance.is_active = False
+    
         # instance.save()
 
     
@@ -130,8 +131,6 @@ class SubscriptionPlan(models.Model):
     user = models.ForeignKey(MembershipPurchase, on_delete=models.CASCADE)
     activation_date = models.DateField(auto_now_add=True)
     expiry_date = models.DateField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    paid = models.BooleanField(default=True)
 
 
     def __str__(self):

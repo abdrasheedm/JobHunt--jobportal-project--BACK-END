@@ -99,13 +99,16 @@ class PostJobView(APIView):
         print(request.data)
         user_id = request.data['company_id']
         if MembershipPurchase.objects.get(user=user_id).postable_job_count <= 0:
-            return Response({"message": "You reached Your limit !\nPlease Subscibe"}, status=status.HTTP_200_OK)
+            return Response({"message": "You reached Your limit !\nPlease Upgrade"}, status=status.HTTP_200_OK)
 
         serializer = PostJobSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print('hai')
             obj = MembershipPurchase.objects.get(user=user_id)
             obj.postable_job_count -= 1
+            if obj.postable_job_count == 0:
+                obj.is_active_job = False
             obj.save()
             return Response({"message": "Job posted Successfully"}, status=status.HTTP_200_OK)
         else:
@@ -206,13 +209,13 @@ class QualificationsView(APIView):
     
 
 class MembershipPurchaseView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self,request:Response):
         user_id = request.query_params['user_id']
         try:
             user = Company.objects.get(id=user_id)
-            instance = MembershipPurchase.objects.filter(user=user, is_active=True)
+            instance = MembershipPurchase.objects.filter(user=user)
             if instance:
                 instance=MembershipPurchase.objects.get(user=user, is_active=True)            
                 serializer = MembershipPurchaseSerializer(instance, many=False)
@@ -229,9 +232,11 @@ class MembershipPurchaseView(APIView):
         membership_id = UserMembership.objects.get(duration=duration).id
         data['membership'] = membership_id
         user_id = request.data['user']
-        if MembershipPurchase.objects.filter(user=user_id, is_active=False).exists():
+        if MembershipPurchase.objects.filter(user=user_id, is_active_job=False).exists():
+            print('jjdskjfsjka=--------------------------------')
             obj = MembershipPurchase.objects.get(user=user_id)
             obj.membership = UserMembership.objects.get(id=membership_id)
+            obj.is_active_job = True
             obj.save()
             serializer = SubsciptionPlanSerializer(data={'user':obj.id})
             if serializer.is_valid():
@@ -241,6 +246,7 @@ class MembershipPurchaseView(APIView):
                 print(serializer.errors)
                 return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            print('ha=-----------=-=---------------------------')
             serializer = MembershipPurchaseSerializer(data=data)
             if serializer.is_valid():
                 user = serializer.save()
@@ -261,16 +267,19 @@ class PlanDetailsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request:Response):
-            user_id = request.query_params['user_id']
-        # try:
+        user_id = request.query_params['user_id']
+        try:
             user = Company.objects.get(id=user_id)
             membership = MembershipPurchase.objects.get(user=user)
 
             instance = SubscriptionPlan.objects.filter(user=membership).order_by('-id')
             now = timezone.now().date()
 
-            
-            if now > instance[0].expiry_date and instance[0].is_active:
+            print(now)
+            if now > instance[0].expiry_date and membership.is_active:
+                membership.is_active = False
+                membership.postable_job_count = 0
+                membership.save()
                 obj = SubscriptionPlan.objects.get(id=instance[0].id)
                 obj.is_active = False
                 obj.save()
@@ -280,8 +289,8 @@ class PlanDetailsView(APIView):
             serilaizer = SubsciptionPlanGetSerializer(instance, many=True)
             return Response(data=serilaizer.data, status=status.HTTP_200_OK)
         
-        # except:
-        #     return Response({"message", "Data not found"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({"message", "Data not found"}, status=status.HTTP_400_BAD_REQUEST)
 
  
 class ApplicationTrackingView(APIView):
