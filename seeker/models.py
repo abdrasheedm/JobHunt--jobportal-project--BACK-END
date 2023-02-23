@@ -146,18 +146,3 @@ class ReportJob(models.Model):
 
     def __str__(self):
         return str(self.job_id)
-    
-
-
-class Notificaiton(models.Model):
-
-    title = models.CharField(max_length=200)
-    sender = models.ForeignKey(SeekerProfile ,related_name = 'notification',on_delete=models.CASCADE,null=True,blank=True,)
-    receive=models.ForeignKey(Company,null=True,blank=True,related_name='user_revoker',on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    status=models.CharField(max_length=264,null=True,blank=True,default="unread")
-    type_of_notification=models.CharField(max_length=264,null=True,blank=True)
-
-    
-    def __str__(self):
-        return self.title

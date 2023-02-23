@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ['10.4.0.85']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,7 +53,7 @@ INSTALLED_APPS = [
     'recruiter',
     'seeker',
     'superuser',
-    'channels'
+    'notifications'
 ]
 
 MIDDLEWARE = [
@@ -84,7 +85,19 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'JobPortal.wsgi.application'
+# WSGI_APPLICATION = 'JobPortal.wsgi.application'
+
+ASGI_APPLICATION = 'JobPortal.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 
 AUTH_USER_MODEL = 'accounts.Account'
