@@ -4,23 +4,30 @@ from accounts.models import Account
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
+import datetime
 # Create your models here.
 class Notifications(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
-    notification = models.TextField(max_length=100)
+    title = models.CharField(max_length=50, default='')
+    notification = models.TextField(max_length=300)
     is_seen = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now=True)
 
     def save(self,*args, **kwargs):
-        channel_layer = get_channel_layer()
-        notification_objs = Notifications.objects.filter(is_seen=False).count()
-        data = {'count' : notification_objs, 'notification' : self.notification}
+        if not self.is_seen:
+            channel_layer = get_channel_layer()
+            count = Notifications.objects.filter(user=self.user.id,is_seen=False).count() + 1
+            created_at = str(self.created_at)
+            print(count)
+            print(created_at)
+            data = {'count' : count,'created_at' : created_at , 'title' : self.title,'notification' : self.notification}
 
-        async_to_sync(channel_layer.group_send)(
-            'notification_'+str(self.user.id), {
-            'type' : 'sent_notification',
-            'value' : json.dumps(data)
-            }
-        )
+            async_to_sync(channel_layer.group_send)(
+                'notification_'+str(self.user.id), {
+                'type' : 'sent_notification',
+                'value' : json.dumps(data)
+                }
+            )
 
         super(Notifications, self).save(*args, **kwargs)
 

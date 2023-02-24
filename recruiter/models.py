@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import Account
+from notifications.models import Notifications
 from superuser.models import CompanyCategory, CompanyDepartment
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -85,6 +86,8 @@ class ShortlistedCandidates(models.Model):
 
     def __str__(self):
         return str(self.applied_job)
+    
+
 
 
     
@@ -116,6 +119,14 @@ class MembershipPurchase(models.Model):
 
     def __str__(self):
         return str(self.user)
+    
+    def save(self,*args, **kwargs):
+        user = self.user.recruiter
+        title = "Plan purchase Successfull"
+        notification = "Successfully subscribed for the "+ self.membership.title+ " plan. Your Plan's validiy is "+ str(self.membership.duration) + ' days'
+        Notifications.objects.create(user=user, title = title, notification = notification)
+
+        super(MembershipPurchase, self).save(*args, **kwargs)
     
     
 @receiver(pre_save, sender=MembershipPurchase)

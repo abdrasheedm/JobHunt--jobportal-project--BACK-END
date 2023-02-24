@@ -8,7 +8,8 @@ from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducat
                           SeekerProjectView, SeekerProjectSingleView, PostProjectView, UpdateProjectView, BrowseJobsView, ApplyJobView, 
                           FavouriteJobView, FavouriteJobGetView, RemoveFavouritedJobView, FavouriteJobListView, AppliedJobsView, AppliedJobRemoveView
                           , DeleteExperienceView, DeleteProjectView, AllSeekersGetView)
-from notifications.views import NotificatinView
+
+from notifications.views import NotificatinView, UnreadNotificationCountView, UpdateNotificationView
 
 # from .views import MeView
 
@@ -32,6 +33,8 @@ urlpatterns = [
 
 
     path('notifications/', NotificatinView.as_view(), name='notifications'),
+    path('notifications-count-view/', UnreadNotificationCountView.as_view(), name='notifications-count'),
+    path('notifications-update-view/', UpdateNotificationView.as_view(), name='notifications-update'),
 
     path('job-qualifications-view/', QualificationsView.as_view(), name='view-job-qualifications'),
     path('membership-purchase-view/', MembershipPurchaseView.as_view(), name='membership-purchase-view'),

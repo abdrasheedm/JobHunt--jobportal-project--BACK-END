@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import Account
 from superuser.models import Skill, CompanyCategory, CompanyDepartment
 from recruiter.models import Company, Job
+from notifications.models import Notifications
 
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -127,6 +128,15 @@ class AppliedJobs(models.Model):
 
     def __str__(self):
         return str(self.job_id)
+    
+    def save(self,*args, **kwargs):
+        if not self.is_shortlisted:
+            user = self.recruiter_id.recruiter
+            title = "New Job Application"
+            notification = "You have new Application for your job post "+ self.job_id.job_title
+            Notifications.objects.create(user=user, title = title, notification = notification)
+
+        super(AppliedJobs, self).save(*args, **kwargs)
     
 
 class FavouriteJob(models.Model):

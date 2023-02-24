@@ -161,6 +161,8 @@ class LoginView(APIView):
                 elif user.user_type.user_type_name == 'Recruiter':
                     profile = Company.objects.get(recruiter=user)
                 else:
+                    if not AdminProfile.objects.filter(admin = user):
+                        AdminProfile.objects.create(admin=user)
                     profile = AdminProfile.objects.get(admin = user)
 
                 response = {
