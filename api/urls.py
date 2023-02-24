@@ -10,12 +10,14 @@ from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducat
                           , DeleteExperienceView, DeleteProjectView, AllSeekersGetView)
 
 from notifications.views import NotificatinView, UnreadNotificationCountView, UpdateNotificationView
+from superuser.views import AllUserGet
 
 # from .views import MeView
 
 
 router = routers.DefaultRouter()
 router.register(r'company-category', CompanyCategoryView, basename='view-company-category')
+router.register(r'all-user', AllUserGet, basename='view-all-users')
 
 
 urlpatterns = [
@@ -79,6 +81,12 @@ urlpatterns = [
     path('seeker-favourited-job/', FavouriteJobGetView.as_view(), name='favourite-job-get'),
     path('seeker-remove-favourited-job/', RemoveFavouritedJobView.as_view(), name='favourite-job-remove'),
     path('favourite-job-list/', FavouriteJobListView.as_view(), name='list-favourite-jobs'),
+
+
+    # Admin
+    # path('all-user-view/', AllUserGet.as_view(), name='all-user-view'),
+ 
+
 
 
 
