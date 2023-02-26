@@ -10,7 +10,8 @@ from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducat
                           , DeleteExperienceView, DeleteProjectView, AllSeekersGetView)
 
 from notifications.views import NotificatinView, UnreadNotificationCountView, UpdateNotificationView
-from superuser.views import AllUserGet
+from superuser.views import (AllUserGet, BlockUnBlockUserView, AllJobsGet, BlockUnBlockJobsView, CategoryAddView, CategorUpdateView, CategoryRemoveView, SingleCategoryView,
+                             AllDepartmentView, AddDepartmentView, UpdateDepartmentView, SingleDepartmentView, RemoveDepartmentView)
 
 # from .views import MeView
 
@@ -18,6 +19,8 @@ from superuser.views import AllUserGet
 router = routers.DefaultRouter()
 router.register(r'company-category', CompanyCategoryView, basename='view-company-category')
 router.register(r'all-user', AllUserGet, basename='view-all-users')
+router.register(r'all-jobs', AllJobsGet, basename='view-all-jobs')
+router.register(r'all-departments', AllDepartmentView, basename='view-all-departments')
 
 
 urlpatterns = [
@@ -84,8 +87,20 @@ urlpatterns = [
 
 
     # Admin
-    # path('all-user-view/', AllUserGet.as_view(), name='all-user-view'),
- 
+    path('user-block-unblock-view/', BlockUnBlockUserView.as_view(), name='user-block-unblock'),
+    path('job-block-unblock-view/', BlockUnBlockJobsView.as_view(), name='job-block-unblock'),
+    #Category Management
+    path('add-category-view/', CategoryAddView.as_view(), name='add-category'),
+    path('update-category-view/', CategorUpdateView.as_view(), name='update-category'),
+    path('remove-category-view/', CategoryRemoveView.as_view(), name='remove-category'),
+    path('single-category-view/', SingleCategoryView.as_view(), name='single-category'),
+
+    # department Management
+    
+    path('add-department-view/', AddDepartmentView.as_view(), name='add-department'),
+    path('update-department-view/', UpdateDepartmentView.as_view(), name='update-department'),
+    path('remove-department-view/', RemoveDepartmentView.as_view(), name='remove-department'),
+    path('single-department-view/', SingleDepartmentView.as_view(), name='single-department'),
 
 
 

@@ -8,14 +8,15 @@ from accounts.serializers import UserTypeSerializer
 class CompanyCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyCategory
-        fields = ['id', 'category_name']
+        fields = '__all__'
 
 
 
 class CategoryDepartmentSerializer(serializers.ModelSerializer):
+    category = CompanyCategorySerializer(read_only=True)
     class Meta:
         model = CompanyDepartment
-        fields = ['id', 'department_name']
+        fields = ['id', 'department_name', 'category']
 
 
 class AlluserViewSerializer(serializers.ModelSerializer):
