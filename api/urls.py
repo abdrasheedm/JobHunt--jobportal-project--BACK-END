@@ -11,7 +11,8 @@ from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducat
 
 from notifications.views import NotificatinView, UnreadNotificationCountView, UpdateNotificationView
 from superuser.views import (AllUserGet, BlockUnBlockUserView, AllJobsGet, BlockUnBlockJobsView, CategoryAddView, CategorUpdateView, CategoryRemoveView, SingleCategoryView,
-                             AllDepartmentView, AddDepartmentView, UpdateDepartmentView, SingleDepartmentView, RemoveDepartmentView)
+                             AllDepartmentView, AddDepartmentView, UpdateDepartmentView, SingleDepartmentView, RemoveDepartmentView, NotificationCountView, NotificationsView,
+                             NotificaionSeenView, QualificationsUpdateView, QuaificationPostView, QualificationsDeleteView, SingleQualificationView, PaymentDetailsView)
 
 # from .views import MeView
 
@@ -21,6 +22,7 @@ router.register(r'company-category', CompanyCategoryView, basename='view-company
 router.register(r'all-user', AllUserGet, basename='view-all-users')
 router.register(r'all-jobs', AllJobsGet, basename='view-all-jobs')
 router.register(r'all-departments', AllDepartmentView, basename='view-all-departments')
+router.register(r'subsciption-details', PaymentDetailsView, basename='view-all-subsciptions')
 
 
 urlpatterns = [
@@ -86,6 +88,10 @@ urlpatterns = [
     path('favourite-job-list/', FavouriteJobListView.as_view(), name='list-favourite-jobs'),
 
 
+
+
+
+
     # Admin
     path('user-block-unblock-view/', BlockUnBlockUserView.as_view(), name='user-block-unblock'),
     path('job-block-unblock-view/', BlockUnBlockJobsView.as_view(), name='job-block-unblock'),
@@ -101,6 +107,22 @@ urlpatterns = [
     path('update-department-view/', UpdateDepartmentView.as_view(), name='update-department'),
     path('remove-department-view/', RemoveDepartmentView.as_view(), name='remove-department'),
     path('single-department-view/', SingleDepartmentView.as_view(), name='single-department'),
+
+
+    #Admin Notifications
+    path('notification-count/', NotificationCountView.as_view(), name='notification-count'),
+    path('admin-notifications/', NotificationsView.as_view(), name='notification-view'),
+    path('admin-notifications-seen-view/', NotificaionSeenView.as_view(), name='notification-seen-view'),
+
+
+
+    # Qualification Management
+    
+    path('add-qualification-view/', QuaificationPostView.as_view(), name='add-qualifcation'),
+    path('update-qualifcation-view/', QualificationsUpdateView.as_view(), name='update-qualifcation'),
+    path('remove-qualifcation-view/', QualificationsDeleteView.as_view(), name='remove-qualifcation'),
+    path('single-qualifcation-view/', SingleQualificationView.as_view(), name='single-qualifcation'),
+
 
 
 

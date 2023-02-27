@@ -73,6 +73,16 @@ class Job(models.Model):
         return self.job_title
     
 
+    def save(self,*args, **kwargs):
+        if not self.pk:
+            title = "New Job Post !"
+            notification = ("A new job is posted by the company %s on title %s" % (self.company_id.company_name, self.job_title))
+            Notifications.objects.create(is_admin=True, title = title, notification = notification)
+            print('created notificaion')
+
+            super(Job, self).save(*args, **kwargs)
+    
+
 
 class ShortlistedCandidates(models.Model):
     STATUS = [
@@ -86,6 +96,15 @@ class ShortlistedCandidates(models.Model):
 
     def __str__(self):
         return str(self.applied_job)
+
+    def save(self,*args, **kwargs):
+        if not self.pk:
+            user = self.applied_job.seeker_id.seeker
+            title = "Shortlisted !"
+            notification = ("Congratulations you have been shortlisted for the job %s by posted by the company %s" % (self.applied_job.job_id.job_title, self.recruiter_id.company_name))
+            Notifications.objects.create(user=user, title = title, notification = notification)
+
+            super(ShortlistedCandidates, self).save(*args, **kwargs)
     
 
 
@@ -110,36 +129,43 @@ class UserMembership(models.Model):
     
 
 class MembershipPurchase(models.Model):
+
+
     user = models.OneToOneField(Company, on_delete=models.CASCADE)
     membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
     postable_job_count = models.PositiveBigIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_active_job = models.BooleanField(default=True)
-    
+    activation_date = models.DateField(auto_now_add=True, null=True, blank=True)
+    expiry_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return str(self.user)
-    
-    def save(self,*args, **kwargs):
-        user = self.user.recruiter
-        title = "Plan purchase Successfull"
-        notification = "Successfully subscribed for the "+ self.membership.title+ " plan. Your Plan's validiy is "+ str(self.membership.duration) + ' days'
-        Notifications.objects.create(user=user, title = title, notification = notification)
 
-        super(MembershipPurchase, self).save(*args, **kwargs)
-    
-    
 @receiver(pre_save, sender=MembershipPurchase)
 def job_count_handler(sender, instance, **kwargs):
+    from django.utils import timezone
+    if instance.expiry_date:
+        if instance.expiry_date < timezone.now().date():
+            instance.is_active = False
     if instance.is_active_job==True and instance.postable_job_count==0:
         instance.postable_job_count = instance.membership.job_count
-    
-        # instance.save()
 
+
+@receiver(post_save, sender=MembershipPurchase)
+def expirty_date_handler(sender, instance, **kwargs):
+    print('hai')
+    if instance.activation_date and not instance.expiry_date:
+        duration = instance.membership.duration
+        activation_date = instance.activation_date
+        expiry_date = activation_date + datetime.timedelta(days=duration)
+        instance.expiry_date = expiry_date
+        instance.save()
     
 
 class SubscriptionPlan(models.Model):
-    user = models.ForeignKey(MembershipPurchase, on_delete=models.CASCADE)
+    user = models.ForeignKey(Company, on_delete=models.CASCADE)
+    membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE, null=True)
     activation_date = models.DateField(auto_now_add=True)
     expiry_date = models.DateField(blank=True, null=True)
 
@@ -147,17 +173,18 @@ class SubscriptionPlan(models.Model):
     def __str__(self):
         return str(self.user)
     
-
-
-
-
-
 @receiver(post_save, sender=SubscriptionPlan)
 def expirty_date_handler(sender, instance, **kwargs):
     print('hai')
     if instance.activation_date and not instance.expiry_date:
-        duration = instance.user.membership.duration
+        duration = instance.membership.duration
         activation_date = instance.activation_date
         expiry_date = activation_date + datetime.timedelta(days=duration)
         instance.expiry_date = expiry_date
         instance.save()
+    
+
+
+
+
+

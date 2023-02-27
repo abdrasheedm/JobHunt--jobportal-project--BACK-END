@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import AdminProfile, CompanyCategory, CompanyDepartment, Skill
+from .models import AdminProfile, CompanyCategory, CompanyDepartment, Skill, PaymentDetails
 
 # Register your models here.
 
 admin.site.register(AdminProfile)
+admin.site.register(PaymentDetails)
 
 class CompanyCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'category_name')

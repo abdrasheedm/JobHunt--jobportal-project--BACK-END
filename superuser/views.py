@@ -1,14 +1,16 @@
 from django.shortcuts import render
-from .serializers import CompanyCategorySerializer, CategoryDepartmentSerializer, AlluserViewSerializer
+from .serializers import (CompanyCategorySerializer, CategoryDepartmentSerializer, AlluserViewSerializer, CategoryDepartmentPostSerializer, NotificationSerializer, PaymentDetailSerializer,
+                          QualificationSerializer)
 from rest_framework.viewsets import ModelViewSet
-from .models import CompanyCategory, CompanyDepartment
+from .models import CompanyCategory, CompanyDepartment, PaymentDetails
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from rest_framework.views import APIView
 from accounts.models import Account
 from recruiter.serilaizers import JobSerializerGet
-from recruiter.models import Job
+from recruiter.models import Job, Qualification
+from notifications.models import Notifications
 
 
 # Create your views here.
@@ -111,7 +113,7 @@ class CompanyDepartmentView(APIView):
 class AddDepartmentView(APIView):
     # permission_classes = [IsAdminUser]
     def post(self, request:Response):
-        serializers = CategoryDepartmentSerializer(data=request.data)
+        serializers = CategoryDepartmentPostSerializer(data=request.data)
 
         if serializers.is_valid():
             serializers.save()
@@ -129,12 +131,16 @@ class UpdateDepartmentView(APIView):
         dep_id = request.query_params['dep_id']
         try:
             instance = CompanyDepartment.objects.get(id=dep_id)
-            instance.department_name = request.data['department_name']
-            instance.category = request.data['category']
-            instance.save()
+            serializers = CategoryDepartmentPostSerializer(instance=instance,data=request.data, partial =True)
 
-            return Response({"message": "Department Updated"}, status=status.HTTP_200_OK)
-        
+
+            if serializers.is_valid():
+                serializers.save()
+                return Response({"message" : "Department updated succesfully"}, status=status.HTTP_200_OK)        
+            else:
+                print(serializers.errors)
+                return Response({"message" : "Department updation failed"}, status=status.HTTP_400_BAD_REQUEST)
+
         except:
             return Response({"message": "data not found"}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -144,7 +150,7 @@ class UpdateDepartmentView(APIView):
 class RemoveDepartmentView(APIView):
     # permission_classes = [IsAdminUser]        
 
-    def patch(self, request:Response):
+    def get(self, request:Response):
         dep_id = request.query_params['dep_id']
         try:
             instance = CompanyDepartment.objects.get(id=dep_id)
@@ -173,14 +179,14 @@ class SingleDepartmentView(APIView):
 
 
 class AllUserGet(ModelViewSet):
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
     
     queryset = Account.objects.all()
     serializer_class = AlluserViewSerializer
 
 
 class BlockUnBlockUserView(APIView):
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
     def post(self, request:Response):
         user_id = request.query_params['user_id']
@@ -197,7 +203,7 @@ class BlockUnBlockUserView(APIView):
 
 
 class AllJobsGet(ModelViewSet):
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
     
     queryset = Job.objects.all()
     serializer_class = JobSerializerGet
@@ -217,6 +223,110 @@ class BlockUnBlockJobsView(APIView):
         
         except :
             return Response({"message": "Job not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class NotificationCountView(APIView):
+    # permission_classes = [IsAdminUser]
+    def get(self, request:Response):
+        count = Notifications.objects.filter(is_admin=True, is_seen=False).count()
+        return Response(data={'count':count}, status=status.HTTP_200_OK)
+    
+
+class NotificationsView(APIView):
+    # permission_classes = [IsAdminUser]
+    def get(self, request:Response):
+        instances = Notifications.objects.filter(is_admin=True)
+        serializer = NotificationSerializer(instance=instances, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    
+
+class NotificaionSeenView(APIView):
+    # permission_classes = [IsAdminUser]
+    
+    def patch(self, request:Response):
+
+        instances = Notifications.objects.filter(is_admin=True, is_seen=False)
+
+        for instance in instances:
+            instance.is_seen = True
+            instance.save()
+        
+        return Response({"message" : "Notification updated"}, status=status.HTTP_200_OK)
+    
+
+class QuaificationPostView(APIView):
+    # permission_classes = [IsAdminUser]
+
+    def post(self, request:Response):
+        serializer = QualificationSerializer(data=request.data, many=False)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "New Qualification added successfully"}, status=status.HTTP_200_OK)
+        else:
+            print(serializer.errors)
+            return Response({"message": "Qualification adding failed"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class QualificationsUpdateView(APIView):
+
+    # permission_classes = [IsAdminUser]
+
+    def patch(self, request:Response):
+        q_id = request.query_params['q_id']
+        try:
+            instance = Qualification.objects.get(id=q_id)
+            serializer = QualificationSerializer(instance=instance, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Qualification updated successfully"}, status=status.HTTP_200_OK)
+            else:
+                print(serializer.errors)
+                return Response({"message": "Qualification updation failed"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        except:
+            return Response({"message": "Data not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class QualificationsDeleteView(APIView):
+
+    # permission_classes = [IsAdminUser]
+
+    def get(self, request:Response):
+        q_id = request.query_params['q_id']
+        try:
+            instance = Qualification.objects.get(id=q_id)
+            instance.delete()
+            return Response({"message": "Qualification updated successfully"}, status=status.HTTP_200_OK)
+            
+        except:
+            return Response({"message": "Data not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class SingleQualificationView(APIView):
+
+    # permission_classes = [IsAdminUser]
+
+    def get(self, request:Response):
+        q_id = request.query_params['q_id']
+        try:
+            instance = Qualification.objects.get(id=q_id)
+            serializer = QualificationSerializer(instance=instance)
+            return Response(data=serializer.data , status=status.HTTP_200_OK)
+            
+        except:
+            return Response({"message": "Data not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class PaymentDetailsView(ModelViewSet):
+    queryset = PaymentDetails.objects.all()
+    serializer_class = PaymentDetailSerializer
+        
+
+
 
 
 

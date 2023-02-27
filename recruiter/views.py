@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from .models import Company, Job, Qualification, MembershipPurchase, UserMembership, SubscriptionPlan, ShortlistedCandidates
-from superuser.models import CompanyCategory, CompanyDepartment
+from superuser.models import CompanyCategory, CompanyDepartment, PaymentDetails
 from superuser.serializers import CompanyCategorySerializer
 from accounts.models import Account
 from .serilaizers import (CompanyProfileSerializerGet, CompanyProfileSerializer, PostJobSerializer,  JobSerializerGet, QualificationSerializer, SubsciptionPlanSerializer, 
-                          MembershipPurchaseSerializer, UserMembershipSerializer, SubsciptionPlanGetSerializer, ShortlistCandidatesSerializer, ShortlistCandidatesSerializer,)
+                          MembershipPurchaseSerializer, UserMembershipSerializer, SubsciptionPlanGetSerializer, ShortlistCandidatesSerializer, ShortlistCandidatesSerializer,
+                          MembershipPurchaseGetSerializer)
 from accounts.serializers import UserViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -213,10 +214,14 @@ class MembershipPurchaseView(APIView):
 
     def get(self,request:Response):
         user_id = request.query_params['user_id']
+        print(user_id)
         try:
+            print('going to get')
             user = Company.objects.get(id=user_id)
+            print(user,'-----------------------------------------------')
             instance = MembershipPurchase.objects.filter(user=user)
             if instance:
+                print('yes instance')
                 instance=MembershipPurchase.objects.get(user=user, is_active=True)            
                 serializer = MembershipPurchaseSerializer(instance, many=False)
             else:
@@ -238,9 +243,11 @@ class MembershipPurchaseView(APIView):
             obj.membership = UserMembership.objects.get(id=membership_id)
             obj.is_active_job = True
             obj.save()
-            serializer = SubsciptionPlanSerializer(data={'user':obj.id})
+            serializer = SubsciptionPlanSerializer(data={'user': user_id, 'membership':obj.membership.id})
             if serializer.is_valid():
-                serializer.save()
+                inst = serializer.save()
+                PaymentDetails.objects.create(user=inst.user, membership = inst, amount_paid=obj.membership.price)
+
                 return Response({"message": "Plan Updated successfully"}, status=status.HTTP_200_OK)
             else:
                 print(serializer.errors)
@@ -250,9 +257,12 @@ class MembershipPurchaseView(APIView):
             serializer = MembershipPurchaseSerializer(data=data)
             if serializer.is_valid():
                 user = serializer.save()
-                serializer = SubsciptionPlanSerializer(data={'user':user.id})
+                print(user)
+                serializer = SubsciptionPlanSerializer(data={'user':user.user.id, 'membership' : user.membership.id})
                 if serializer.is_valid():
-                    serializer.save()
+                    obj = serializer.save()
+                    PaymentDetails.objects.create(user=obj.user, membership = obj, amount_paid=user.membership.price)
+
                 else:
                     print(serializer.errors)
                     return Response({"message": "subsciption failed"}, status=status.HTTP_400_BAD_REQUEST)
@@ -271,22 +281,15 @@ class PlanDetailsView(APIView):
         try:
             user = Company.objects.get(id=user_id)
             membership = MembershipPurchase.objects.get(user=user)
-
-            instance = SubscriptionPlan.objects.filter(user=membership).order_by('-id')
             now = timezone.now().date()
 
             print(now)
-            if now > instance[0].expiry_date and membership.is_active:
+            if now > membership.expiry_date and membership.is_active:
                 membership.is_active = False
                 membership.postable_job_count = 0
                 membership.save()
-                obj = SubscriptionPlan.objects.get(id=instance[0].id)
-                obj.is_active = False
-                obj.save()
-                print('done---------------------------------------------------------------------------------------')
-            print(instance)
 
-            serilaizer = SubsciptionPlanGetSerializer(instance, many=True)
+            serilaizer = MembershipPurchaseGetSerializer(membership, many=False)
             return Response(data=serilaizer.data, status=status.HTTP_200_OK)
         
         except:

@@ -66,7 +66,7 @@ class UserMembershipSerializer(serializers.ModelSerializer):
 class SubsciptionPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionPlan
-        fields = ['user']
+        fields = ['user', 'membership']
         read_only_fields = ('activation_date', 'expiry_date', 'is_active')
 
 
