@@ -24,7 +24,7 @@ media
 *.so
 
 #ignore migrations
-**/migrations/*
+# **/migrations/*
 
 # Distribution / packaging
 .Python
