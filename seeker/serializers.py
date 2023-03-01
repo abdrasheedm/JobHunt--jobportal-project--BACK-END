@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from accounts.serializers import UserViewSerializer
 from superuser.serializers import CompanyCategorySerializer, CategoryDepartmentSerializer
-from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, AppliedJobs, FavouriteJob, ReportJob
+from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, AppliedJobs, FavouriteJob, ReportJob, ReportJob
 from recruiter.serilaizers import JobSerializerGet, ShortlistedCandidates
 
 
@@ -82,7 +82,16 @@ class ShortlistCandidatesGetSerializer(serializers.ModelSerializer):
 class ReportJobPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportJob
-        feilds = '__all__'
+        fields = '__all__'
+
+    
+class RepsortJobGetSerializer(serializers.ModelSerializer):
+    job_id = JobSerializerGet(read_only=True)
+    seeker_id = SeekerProfileSerializer(read_only=True)
+    class Meta:
+        model = ReportJob
+        fields = '__all__'
+
 
 
 

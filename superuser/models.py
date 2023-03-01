@@ -38,12 +38,12 @@ class Skill(models.Model):
 class PaymentDetails(models.Model):
     user = models.ForeignKey('recruiter.company', on_delete = models.DO_NOTHING)
     membership = models.ForeignKey('recruiter.SubscriptionPlan', on_delete=models.DO_NOTHING)
-    amount_paid = models.CharField(max_length=10)
+    amount_paid = models.FloatField(max_length=10)
     payment_id = models.CharField(max_length=100, null=True)
     payment_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return self.amount_paid
+        return str(self.amount_paid)
     
     def save(self,*args, **kwargs):
         if not self.pk:

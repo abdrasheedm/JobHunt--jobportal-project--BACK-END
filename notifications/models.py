@@ -12,6 +12,8 @@ class Notifications(models.Model):
     title = models.CharField(max_length=50, default='')
     notification = models.TextField(max_length=300)
     is_seen = models.BooleanField(default=False)
+    url = models.CharField(max_length=100, null=True, blank=True)
+    parameter = models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self,*args, **kwargs):

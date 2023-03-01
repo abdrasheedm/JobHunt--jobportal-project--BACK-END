@@ -9,8 +9,10 @@ from rest_framework import status
 from rest_framework.views import APIView
 from accounts.models import Account
 from recruiter.serilaizers import JobSerializerGet
-from recruiter.models import Job, Qualification
+from recruiter.models import Job, Qualification, Company
+from seeker.models import SeekerProfile
 from notifications.models import Notifications
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -236,7 +238,7 @@ class NotificationCountView(APIView):
 class NotificationsView(APIView):
     # permission_classes = [IsAdminUser]
     def get(self, request:Response):
-        instances = Notifications.objects.filter(is_admin=True)
+        instances = Notifications.objects.filter(is_admin=True).order_by('-created_at')
         serializer = NotificationSerializer(instance=instances, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
     
@@ -324,6 +326,29 @@ class SingleQualificationView(APIView):
 class PaymentDetailsView(ModelViewSet):
     queryset = PaymentDetails.objects.all()
     serializer_class = PaymentDetailSerializer
+
+
+
+class DashboradView(APIView):
+    # permission_classes = [IsAdminUser]
+    def get(self, request:Response):
+        recuiter_count = Company.objects.all().count()
+        seeker_count = SeekerProfile.objects.all().count()
+        job_count = Job.objects.all().count()
+        subsciption_count = PaymentDetails.objects.all().count()
+        total_earnings = PaymentDetails.objects.aggregate(Sum('amount_paid'))['amount_paid__sum']
+
+        data = {
+            'recuiter_count' : recuiter_count,
+            'seeker_count' : seeker_count,
+            'job_count' : job_count,
+            'subsciption_count' : subsciption_count,
+            'total_earnings' : total_earnings
+            
+        }
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
         
 
 

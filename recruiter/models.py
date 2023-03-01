@@ -67,6 +67,7 @@ class Job(models.Model):
     last_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     location = models.CharField(max_length=200, blank=True)
+    reports = models.PositiveBigIntegerField(default=0)
     created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
@@ -80,7 +81,7 @@ class Job(models.Model):
             Notifications.objects.create(is_admin=True, title = title, notification = notification)
             print('created notificaion')
 
-            super(Job, self).save(*args, **kwargs)
+        super(Job, self).save(*args, **kwargs)
     
 
 

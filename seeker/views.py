@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from django.db.models import F
 from accounts.models import Account
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics
-from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, FavouriteJob, AppliedJobs
+from .models import SeekerProfile, Education, Experience, SeekerSkillSet, Projects, FavouriteJob, AppliedJobs, ReportJob
 from .serializers import (SeekerProfileSerializer, SeekerProfileUpdateSerializer, EducationSerilizer, ExperienceSerializer, ProjectSerializer, ApplyJobSerializer,
-                          FavouriteJobSerializer, FavouriteJobGetSerializer, AppliedJobsGetSerializer)
+                          FavouriteJobSerializer, FavouriteJobGetSerializer, AppliedJobsGetSerializer, ReportJobPostSerializer, RepsortJobGetSerializer)
 from recruiter.models import Job
 from recruiter.serilaizers import JobSerializerGet
 
@@ -470,6 +472,32 @@ class FavouriteJobListView(APIView):
 
         except:
             return Response({"message": "No jobs found"})
+        
+
+
+class ReportJobView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request:Response):
+        print(request.data)
+        job_id = request.data['job_id']
+        seeker_id = request.data['seeker_id']
+        if ReportJob.objects.filter(job_id=job_id, seeker_id=seeker_id).exists():
+            return Response({"message": "You already reaported this job"}, status=status.HTTP_200_OK)
+        serializer = ReportJobPostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            Job.objects.filter(id=job_id).update(reports=F('reports') + 1) 
+            return Response({"message": "Reported for this Job"}, status=status.HTTP_200_OK)
+        else:
+            print(serializer.errors)
+            return Response({"message": "Failed to report"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class ReportedJobsView(ModelViewSet):
+    # permission_classes = []
+    queryset = ReportJob.objects.all()
+    serializer_class = RepsortJobGetSerializer
+        
         
 
 

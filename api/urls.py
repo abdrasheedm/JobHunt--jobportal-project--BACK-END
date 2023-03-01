@@ -7,12 +7,16 @@ from seeker.views import (SeekerProfileView, SeekerProfileUpdateView, PostEducat
                           SeekerExperienceSingleView, PostExperienceView, UpdateExperienceView, SeekerExperienceView,
                           SeekerProjectView, SeekerProjectSingleView, PostProjectView, UpdateProjectView, BrowseJobsView, ApplyJobView, 
                           FavouriteJobView, FavouriteJobGetView, RemoveFavouritedJobView, FavouriteJobListView, AppliedJobsView, AppliedJobRemoveView
-                          , DeleteExperienceView, DeleteProjectView, AllSeekersGetView)
+                          , DeleteExperienceView, DeleteProjectView, AllSeekersGetView, ReportJobView, ReportedJobsView)
 
+from home.views import TopJobsView
 from notifications.views import NotificatinView, UnreadNotificationCountView, UpdateNotificationView
 from superuser.views import (AllUserGet, BlockUnBlockUserView, AllJobsGet, BlockUnBlockJobsView, CategoryAddView, CategorUpdateView, CategoryRemoveView, SingleCategoryView,
                              AllDepartmentView, AddDepartmentView, UpdateDepartmentView, SingleDepartmentView, RemoveDepartmentView, NotificationCountView, NotificationsView,
-                             NotificaionSeenView, QualificationsUpdateView, QuaificationPostView, QualificationsDeleteView, SingleQualificationView, PaymentDetailsView)
+                             NotificaionSeenView, QualificationsUpdateView, QuaificationPostView, QualificationsDeleteView, SingleQualificationView, PaymentDetailsView, DashboradView)
+
+
+
 
 # from .views import MeView
 
@@ -23,6 +27,7 @@ router.register(r'all-user', AllUserGet, basename='view-all-users')
 router.register(r'all-jobs', AllJobsGet, basename='view-all-jobs')
 router.register(r'all-departments', AllDepartmentView, basename='view-all-departments')
 router.register(r'subsciption-details', PaymentDetailsView, basename='view-all-subsciptions')
+router.register(r'reported-jobs', ReportedJobsView, basename='view-reported-jobs')
 
 
 urlpatterns = [
@@ -86,6 +91,7 @@ urlpatterns = [
     path('seeker-favourited-job/', FavouriteJobGetView.as_view(), name='favourite-job-get'),
     path('seeker-remove-favourited-job/', RemoveFavouritedJobView.as_view(), name='favourite-job-remove'),
     path('favourite-job-list/', FavouriteJobListView.as_view(), name='list-favourite-jobs'),
+    path('report-jobs/', ReportJobView.as_view(), name='report-jobs'),
 
 
 
@@ -122,6 +128,14 @@ urlpatterns = [
     path('update-qualifcation-view/', QualificationsUpdateView.as_view(), name='update-qualifcation'),
     path('remove-qualifcation-view/', QualificationsDeleteView.as_view(), name='remove-qualifcation'),
     path('single-qualifcation-view/', SingleQualificationView.as_view(), name='single-qualifcation'),
+
+    # Dashboard
+    path('dashboard-view/', DashboradView.as_view(), name='dahsboard-view'),
+
+
+    #Home 
+    path('top-job-view/', TopJobsView.as_view(), name='top-job-view'),
+
 
 
 

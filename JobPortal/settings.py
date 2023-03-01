@@ -53,8 +53,10 @@ INSTALLED_APPS = [
     'api',
     'recruiter',
     'seeker',
+    'home',
     'superuser',
-    'notifications'
+    'notifications',
+    
 ]
 
 MIDDLEWARE = [

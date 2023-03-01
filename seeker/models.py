@@ -156,3 +156,11 @@ class ReportJob(models.Model):
 
     def __str__(self):
         return str(self.job_id)
+    
+    def save(self,*args, **kwargs):
+        if not self.pk:
+            title = "Report On Job"
+            notification = "A new report found on the job %s by %s company" % (self.job_id.job_title, self.job_id.company_id.company_name)
+            Notifications.objects.create(is_admin=True, title = title, notification = notification)
+            super(ReportJob, self).save(*args, **kwargs)
+    

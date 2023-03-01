@@ -91,7 +91,7 @@ class MembershipPurchaseGetSerializer(serializers.ModelSerializer):
 
 
 class SubsciptionPlanGetSerializer(serializers.ModelSerializer):
-    user = MembershipPurchaseGetSerializer(read_only=True, many=False)
+    membership = UserMembershipSerializer(read_only=True, many=False)
     class Meta:
         model = SubscriptionPlan
         fields = '__all__'
