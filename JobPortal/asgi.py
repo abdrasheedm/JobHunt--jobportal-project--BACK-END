@@ -11,8 +11,9 @@ import os
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 import django
+from django.conf import settings
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'JobPortal.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
 django.setup()
 
 from channels.auth import AuthMiddlewareStack
