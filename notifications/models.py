@@ -14,7 +14,7 @@ class Notifications(models.Model):
     is_seen = models.BooleanField(default=False)
     url = models.CharField(max_length=100, null=True, blank=True)
     parameter = models.CharField(max_length=10, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def save(self,*args, **kwargs):
         print('reached notification')

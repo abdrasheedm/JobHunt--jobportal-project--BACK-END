@@ -115,7 +115,7 @@ class Verify_otpView(APIView):
     def post(self, request : Request):
         data = request.data
         check_otp = data.get('otp')
-
+        print('verify otp')
         phone_number = data.get('mobile')
         print(phone_number, check_otp)
         print("here")
