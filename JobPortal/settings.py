@@ -169,7 +169,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-"http://10.4.0.85:5173"
+"https://user.jobhunt.tech:5173"
 ]
 
 APPEND_SLASH=False

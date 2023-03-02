@@ -115,7 +115,7 @@ class ShortlistedCandidates(models.Model):
 
 class UserMembership(models.Model):
     DURATION = ( 
-        (0, '15 days'),
+        (15, '15 days'),
         (30 , 'One Month'),
         (90 , 'Three Month'),
         (180 , 'Six Month'),
@@ -158,6 +158,7 @@ def expirty_date_handler(sender, instance, **kwargs):
     print('hai')
     if instance.activation_date and not instance.expiry_date:
         duration = instance.membership.duration
+        print(duration)
         activation_date = instance.activation_date
         expiry_date = activation_date + datetime.timedelta(days=duration)
         instance.expiry_date = expiry_date
