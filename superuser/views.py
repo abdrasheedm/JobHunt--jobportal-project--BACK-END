@@ -181,7 +181,8 @@ class SingleDepartmentView(APIView):
 
 
 class AllUserGet(ModelViewSet):
-    # permission_classes = [IsAdminUser]
+    print(Response, '-----------------------------')
+    permission_classes = [IsAdminUser]
     
     queryset = Account.objects.all()
     serializer_class = AlluserViewSerializer

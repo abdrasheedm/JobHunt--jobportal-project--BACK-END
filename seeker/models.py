@@ -134,7 +134,9 @@ class AppliedJobs(models.Model):
             user = self.recruiter_id.recruiter
             title = "New Job Application"
             notification = "You have new Application for your job post "+ self.job_id.job_title
-            Notifications.objects.create(user=user, title = title, notification = notification)
+            url = '/recruiter-single-job-view'
+            parameter = self.job_id.id
+            Notifications.objects.create(user=user, title = title, notification = notification, url=url, parameter=parameter)
 
         super(AppliedJobs, self).save(*args, **kwargs)
     
@@ -161,6 +163,7 @@ class ReportJob(models.Model):
         if not self.pk:
             title = "Report On Job"
             notification = "A new report found on the job %s by %s company" % (self.job_id.job_title, self.job_id.company_id.company_name)
-            Notifications.objects.create(is_admin=True, title = title, notification = notification)
+            url = '/job-management'
+            Notifications.objects.create(is_admin=True, title = title, notification = notification, url=url)
             super(ReportJob, self).save(*args, **kwargs)
     

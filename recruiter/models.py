@@ -78,7 +78,8 @@ class Job(models.Model):
         if not self.pk:
             title = "New Job Post !"
             notification = ("A new job is posted by the company %s on title %s" % (self.company_id.company_name, self.job_title))
-            Notifications.objects.create(is_admin=True, title = title, notification = notification)
+            url = '/job-management'
+            Notifications.objects.create(is_admin=True, title = title, notification = notification, url=url)
             print('created notificaion')
 
         super(Job, self).save(*args, **kwargs)
@@ -103,7 +104,9 @@ class ShortlistedCandidates(models.Model):
             user = self.applied_job.seeker_id.seeker
             title = "Shortlisted !"
             notification = ("Congratulations you have been shortlisted for the job %s by posted by the company %s" % (self.applied_job.job_id.job_title, self.recruiter_id.company_name))
-            Notifications.objects.create(user=user, title = title, notification = notification)
+            url = '/seeker-single-job-view'
+            parameter = self.applied_job.id
+            Notifications.objects.create(user=user, title = title, notification = notification, url=url, parameter=parameter)
 
             super(ShortlistedCandidates, self).save(*args, **kwargs)
     

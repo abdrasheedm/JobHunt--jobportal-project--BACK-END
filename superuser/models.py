@@ -50,10 +50,12 @@ class PaymentDetails(models.Model):
             user = self.user.recruiter
             title = "Plan purchase Successfull"
             notification = "Successfully subscribed for the "+ self.membership.membership.title+ " plan. Your Plan's validiy is "+ str(self.membership.membership.duration) + ' days'
-            Notifications.objects.create(user=user, title = title, notification = notification)
+            url = '/recruiter-plan-details'
+            Notifications.objects.create(user=user, title = title, notification = notification, url=url)
             title = "New Subsciption Found"
             notification = "%s company upgraded %s plan" % (self.user.company_name, self.membership.membership.title)
-            Notifications.objects.create(is_admin=True, title = title, notification = notification)
+            url = '/subscription-details'
+            Notifications.objects.create(is_admin=True, title = title, notification = notification, url=url)
 
             super(PaymentDetails, self).save(*args, **kwargs)
 

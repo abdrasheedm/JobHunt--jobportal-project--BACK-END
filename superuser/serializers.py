@@ -36,7 +36,7 @@ class AlluserViewSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notifications
-        fields = ['title', 'notification', 'created_at']
+        fields = ['title', 'notification', 'created_at', 'url', 'parameter']
 
 
 class QualificationSerializer(serializers.ModelSerializer):
