@@ -50,7 +50,7 @@ class SignUpView(generics.GenericAPIView):
                 print(user.user_type)
                 SeekerProfile.objects.create(seeker = user)
                 phone_number = data.get('phone_number')
-                # send_otp(phone_number)
+                send_otp(phone_number)
                 print('otp sent')
 
             elif user_type == 'Recruiter':
@@ -85,7 +85,7 @@ class SignUpView(generics.GenericAPIView):
 
 
                 phone_number = data.get('phone_number')
-                # send_otp(phone_number)
+                send_otp(phone_number)
                 print('otp send')
 
 
@@ -119,8 +119,8 @@ class Verify_otpView(APIView):
         phone_number = data.get('mobile')
         print(phone_number, check_otp)
         print("here")
-        # check = verify_otp(phone_number, check_otp)
-        check = True
+        check = verify_otp(phone_number, check_otp)
+        # check = True
 
         if check:
             user = Account.objects.get(phone_number = phone_number)
@@ -203,5 +203,22 @@ class LogoutView(APIView):
             return Response({"message": "Logged out successfully"},status=status.HTTP_200_OK)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class ForgotPasswordView(APIView):
+    
+    def post(self, request:Response):
+        email = request.data['email']
+        if Account.objects.filter(email=email).exists:
+            user = Account.objects.get(email=email)
+            password = request.data['password']
+            user.set_password(password)
+            user.save()
+
+            return Response({"message": "Password resetted succesfully"}, status=status.HTTP_200_OK)
+
+        else:
+            return Response({"message": "User with this email does not exists!. Please Signup"}, status=status.HTTP_400_BAD_REQUEST)
 
 

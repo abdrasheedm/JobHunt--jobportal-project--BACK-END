@@ -16,7 +16,7 @@ def send_otp(mobile):
                         .verifications \
                         .create(to= number , channel='sms')
 
-    print(verification.status)
+    print(verification.status, '------------------------')
     return(verification.status)
 
 
