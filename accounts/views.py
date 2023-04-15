@@ -34,6 +34,10 @@ class SignUpView(generics.GenericAPIView):
 
         user_type = request.data.get('user_type')
         email = request.data.get('email')
+        if user_type == 'Recruiter':
+            if Company.objects.filter(company_name = request.data.get('company_name')).exists():
+                errorMessage = "Company name already taken"
+                return Response(data=errorMessage, status=status.HTTP_400_BAD_REQUEST)
 
 
         if serializer.is_valid():
@@ -50,7 +54,7 @@ class SignUpView(generics.GenericAPIView):
                 print(user.user_type)
                 SeekerProfile.objects.create(seeker = user)
                 phone_number = data.get('phone_number')
-                send_otp(phone_number)
+                # send_otp(phone_number)
                 print('otp sent')
 
             elif user_type == 'Recruiter':
@@ -85,7 +89,7 @@ class SignUpView(generics.GenericAPIView):
 
 
                 phone_number = data.get('phone_number')
-                send_otp(phone_number)
+                # send_otp(phone_number)
                 print('otp send')
 
 
@@ -105,7 +109,12 @@ class SignUpView(generics.GenericAPIView):
         else:
             print('serializer not valid')
             print(serializer.errors)
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            errorMessage = "Error occurred Please check your inputs"
+            if Account.objects.filter(email=email).exists():
+                errorMessage = "Email is already taken"
+            if Account.objects.filter(phone_number=request.data.get('phone_number')).exists():
+                errorMessage = "Phone number already Taken"
+            return Response(data=errorMessage, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -119,8 +128,8 @@ class Verify_otpView(APIView):
         phone_number = data.get('mobile')
         print(phone_number, check_otp)
         print("here")
-        check = verify_otp(phone_number, check_otp)
-        # check = True
+        # check = verify_otp(phone_number, check_otp)
+        check = True
 
         if check:
             user = Account.objects.get(phone_number = phone_number)
@@ -220,5 +229,3 @@ class ForgotPasswordView(APIView):
 
         else:
             return Response({"message": "User with this email does not exists!. Please Signup"}, status=status.HTTP_400_BAD_REQUEST)
-
-
